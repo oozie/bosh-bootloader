@@ -1,6 +1,8 @@
 package acceptance_test
 
 import (
+	"fmt"
+
 	acceptance "github.com/cloudfoundry/bosh-bootloader/acceptance-tests"
 	"github.com/cloudfoundry/bosh-bootloader/acceptance-tests/actors"
 	"github.com/cloudfoundry/bosh-bootloader/testhelpers"
@@ -24,7 +26,8 @@ var _ = Describe("lbs test", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		state = acceptance.NewState(configuration.StateFileDir)
-		bbl = actors.NewBBL(configuration.StateFileDir, pathToBBL, configuration, "lbs-env")
+		envIDSuffix := fmt.Sprintf("lbs-env-%d", GinkgoParallelNode())
+		bbl = actors.NewBBL(configuration.StateFileDir, pathToBBL, configuration, envIDSuffix)
 		gcp = actors.NewGCP(configuration)
 		terraform = actors.NewTerraform(configuration)
 		boshcli = actors.NewBOSHCLI()

@@ -1,6 +1,8 @@
 package acceptance_test
 
 import (
+	"fmt"
+
 	acceptance "github.com/cloudfoundry/bosh-bootloader/acceptance-tests"
 	"github.com/cloudfoundry/bosh-bootloader/acceptance-tests/actors"
 
@@ -19,7 +21,8 @@ var _ = Describe("idempotent test", func() {
 		configuration, err = acceptance.LoadConfig()
 		Expect(err).NotTo(HaveOccurred())
 
-		bbl = actors.NewBBL(configuration.StateFileDir, pathToBBL, configuration, "reentrant-env")
+		envIDSuffix := fmt.Sprintf("reentrant-%d", GinkgoParallelNode())
+		bbl = actors.NewBBL(configuration.StateFileDir, pathToBBL, configuration, envIDSuffix)
 	})
 
 	AfterEach(func() {
