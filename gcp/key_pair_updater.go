@@ -80,8 +80,8 @@ func (k KeyPairUpdater) Update() (storage.KeyPair, error) {
 	_, err = k.client.SetCommonInstanceMetadata(project.CommonInstanceMetadata)
 	if err != nil {
 		k.retryCount++
-		if k.retryCount < 3 {
-			time.Sleep(time.Duration((500 + rand.Intn(1500))) * time.Millisecond)
+		if k.retryCount < 5 {
+			time.Sleep(time.Duration((1000 + rand.Intn(5000))) * time.Millisecond)
 			return k.Update()
 		}
 		return storage.KeyPair{}, fmt.Errorf("set common instance metadata: %s", err)
