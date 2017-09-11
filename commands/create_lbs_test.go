@@ -15,6 +15,7 @@ var _ = Describe("create-lbs", func() {
 	var (
 		command              commands.CreateLBs
 		awsCreateLBs         *fakes.AWSCreateLBs
+		azureCreateLBs       *fakes.AzureCreateLBs
 		gcpCreateLBs         *fakes.GCPCreateLBs
 		boshManager          *fakes.BOSHManager
 		certificateValidator *fakes.CertificateValidator
@@ -24,6 +25,7 @@ var _ = Describe("create-lbs", func() {
 
 	BeforeEach(func() {
 		awsCreateLBs = &fakes.AWSCreateLBs{}
+		azureCreateLBs = &fakes.AzureCreateLBs{}
 		gcpCreateLBs = &fakes.GCPCreateLBs{}
 		boshManager = &fakes.BOSHManager{}
 		boshManager.VersionCall.Returns.Version = "2.0.24"
@@ -31,7 +33,11 @@ var _ = Describe("create-lbs", func() {
 		logger = &fakes.Logger{}
 		stateValidator = &fakes.StateValidator{}
 
+<<<<<<< Updated upstream
 		command = commands.NewCreateLBs(awsCreateLBs, gcpCreateLBs, logger, stateValidator, certificateValidator, boshManager)
+=======
+		command = commands.NewCreateLBs(awsCreateLBs, azureCreateLBs, gcpCreateLBs, stateValidator, certificateValidator, boshManager)
+>>>>>>> Stashed changes
 	})
 
 	Describe("CheckFastFails", func() {
@@ -162,6 +168,26 @@ var _ = Describe("create-lbs", func() {
 			})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(gcpCreateLBs.ExecuteCall.Receives.Config).Should(Equal(commands.GCPCreateLBsConfig{
+				LBType:       "cf",
+				CertPath:     "my-cert",
+				KeyPath:      "my-key",
+				Domain:       "some-domain",
+				SkipIfExists: true,
+			}))
+		})
+
+		It("creates a Azure cf lb type is the iaas if Azure and type is cf", func() {
+			err := command.Execute([]string{
+				"--type", "cf",
+				"--cert", "my-cert",
+				"--key", "my-key",
+				"--domain", "some-domain",
+				"--skip-if-exists",
+			}, storage.State{
+				IAAS: "azure",
+			})
+			Expect(err).NotTo(HaveOccurred())
+			Expect(azureCreateLBs.ExecuteCall.Receives.Config).Should(Equal(commands.AzureCreateLBsConfig{
 				LBType:       "cf",
 				CertPath:     "my-cert",
 				KeyPath:      "my-key",

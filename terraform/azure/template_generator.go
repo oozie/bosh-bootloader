@@ -13,5 +13,11 @@ func NewTemplateGenerator() TemplateGenerator {
 }
 
 func (t TemplateGenerator) Generate(state storage.State) string {
-	return strings.Join([]string{VarsTemplate, ResourceGroupTemplate, NetworkTemplate, StorageTemplate, NetworkSecurityGroupTemplate, OutputTemplate}, "\n")
+	baseTemplate := strings.Join([]string{VarsTemplate, ResourceGroupTemplate, NetworkTemplate, StorageTemplate, NetworkSecurityGroupTemplate, OutputTemplate}, "\n")
+
+	if state.LB.Type == "cf" {
+		baseTemplate = strings.Join([]string{baseTemplate, CFLBTemplate}, "\n")
+	}
+
+	return baseTemplate
 }

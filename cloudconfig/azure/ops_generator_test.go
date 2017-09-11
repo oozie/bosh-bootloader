@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"path/filepath"
+	"strings"
 
 	"github.com/cloudfoundry/bosh-bootloader/cloudconfig/azure"
 	"github.com/cloudfoundry/bosh-bootloader/fakes"
@@ -50,6 +51,31 @@ var _ = Describe("AzureOpsGenerator", func() {
 			Expect(terraformManager.GetOutputsCall.Receives.BBLState).To(Equal(incomingState))
 
 			Expect(opsYAML).To(gomegamatchers.MatchYAML(expectedOpsFile))
+		})
+
+		Context("when a cf load balancer exists", func() {
+			It("returns an ops file with additional vm extensions", func() {
+				terraformManager.GetOutputsCall.Returns.Outputs = map[string]interface{}{
+					"bosh_network_name":           "some-virtual-network-name",
+					"bosh_subnet_name":            "some-subnet-name",
+					"bosh_default_security_group": "some-security-group",
+					"web_lb_name":                 "some-web-lb-name",
+					"tcp_lb_name":                 "some-tcp-lb-name",
+				}
+
+				incomingState.LB.Type = "cf"
+
+				expectedLBOpsFile, err := ioutil.ReadFile(filepath.Join("fixtures", "azure-cf-lb-ops.yml"))
+				Expect(err).NotTo(HaveOccurred())
+				expectedOps := strings.Join([]string{string(expectedOpsFile), string(expectedLBOpsFile)}, "\n")
+
+				opsYAML, err := opsGenerator.Generate(incomingState)
+				Expect(err).NotTo(HaveOccurred())
+
+				Expect(terraformManager.GetOutputsCall.Receives.BBLState).To(Equal(incomingState))
+
+				Expect(opsYAML).To(gomegamatchers.MatchYAML(expectedOps))
+			})
 		})
 
 		Context("failure cases", func() {

@@ -10,8 +10,12 @@ import (
 
 type CreateLBs struct {
 	awsCreateLBs         awsCreateLBs
+<<<<<<< Updated upstream
 	boshManager          boshManager
 	certificateValidator certificateValidator
+=======
+	azureCreateLBs       azureCreateLBs
+>>>>>>> Stashed changes
 	gcpCreateLBs         gcpCreateLBs
 	logger               logger
 	stateValidator       stateValidator
@@ -26,23 +30,32 @@ type lbConfig struct {
 	skipIfExists bool
 }
 
-type gcpCreateLBs interface {
-	Execute(GCPCreateLBsConfig, storage.State) error
-}
-
 type awsCreateLBs interface {
 	Execute(AWSCreateLBsConfig, storage.State) error
+}
+
+type azureCreateLBs interface {
+	Execute(AzureCreateLBsConfig, storage.State) error
+}
+
+type gcpCreateLBs interface {
+	Execute(GCPCreateLBsConfig, storage.State) error
 }
 
 type certificateValidator interface {
 	Validate(command, certPath, keyPath, chainPath string) error
 }
 
+<<<<<<< Updated upstream
 func NewCreateLBs(awsCreateLBs awsCreateLBs, gcpCreateLBs gcpCreateLBs, logger logger, stateValidator stateValidator, certificateValidator certificateValidator, boshManager boshManager) CreateLBs {
+=======
+func NewCreateLBs(awsCreateLBs awsCreateLBs, azureCreateLBs azureCreateLBs, gcpCreateLBs gcpCreateLBs, stateValidator stateValidator, certificateValidator certificateValidator, boshManager boshManager) CreateLBs {
+>>>>>>> Stashed changes
 	return CreateLBs{
 		boshManager:          boshManager,
 		logger:               logger,
 		awsCreateLBs:         awsCreateLBs,
+		azureCreateLBs:       azureCreateLBs,
 		gcpCreateLBs:         gcpCreateLBs,
 		stateValidator:       stateValidator,
 		certificateValidator: certificateValidator,
@@ -96,22 +109,33 @@ func (c CreateLBs) Execute(args []string, state storage.State) error {
 	}
 
 	switch state.IAAS {
-	case "gcp":
-		if err := c.gcpCreateLBs.Execute(GCPCreateLBsConfig{
-			LBType:       config.lbType,
-			CertPath:     config.certPath,
-			KeyPath:      config.keyPath,
-			Domain:       config.domain,
-			SkipIfExists: config.skipIfExists,
-		}, state); err != nil {
-			return err
-		}
 	case "aws":
 		if err := c.awsCreateLBs.Execute(AWSCreateLBsConfig{
 			LBType:       config.lbType,
 			CertPath:     config.certPath,
 			KeyPath:      config.keyPath,
 			ChainPath:    config.chainPath,
+			Domain:       config.domain,
+			SkipIfExists: config.skipIfExists,
+		}, state); err != nil {
+			return err
+		}
+	case "azure":
+		if err := c.azureCreateLBs.Execute(AzureCreateLBsConfig{
+			LBType:       config.lbType,
+			CertPath:     config.certPath,
+			KeyPath:      config.keyPath,
+			ChainPath:    config.chainPath,
+			Domain:       config.domain,
+			SkipIfExists: config.skipIfExists,
+		}, state); err != nil {
+			return err
+		}
+	case "gcp":
+		if err := c.gcpCreateLBs.Execute(GCPCreateLBsConfig{
+			LBType:       config.lbType,
+			CertPath:     config.certPath,
+			KeyPath:      config.keyPath,
 			Domain:       config.domain,
 			SkipIfExists: config.skipIfExists,
 		}, state); err != nil {

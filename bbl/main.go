@@ -167,7 +167,16 @@ func main() {
 
 	azureClient := azure.NewClient()
 	azureUp := commands.NewAzureUp(azureClient, boshManager, cloudConfigManager, envIDManager, logger, stateStore, terraformManager)
+<<<<<<< Updated upstream
 	azureDeleteLBs := commands.NewAzureDeleteLBs(cloudConfigManager, stateStore, terraformManager)
+=======
+	azureCreateLBs := commands.NewAzureCreateLBs()
+
+	gcpCreateLBs := commands.NewGCPCreateLBs(terraformManager, cloudConfigManager, stateStore, gcpEnvironmentValidator, logger, gcpClientProvider.Client())
+	gcpLBs := commands.NewGCPLBs(terraformManager, logger)
+	gcpUpdateLBs := commands.NewGCPUpdateLBs(gcpCreateLBs)
+	gcpDeleteLBs := commands.NewGCPDeleteLBs(stateStore, gcpEnvironmentValidator, terraformManager, cloudConfigManager)
+>>>>>>> Stashed changes
 
 	gcpUp := commands.NewGCPUp(commands.NewGCPUpArgs{
 		StateStore:                   stateStore,
@@ -178,10 +187,13 @@ func main() {
 		CloudConfigManager:           cloudConfigManager,
 		GCPAvailabilityZoneRetriever: gcpClientProvider.Client(),
 	})
+<<<<<<< Updated upstream
 	gcpCreateLBs := commands.NewGCPCreateLBs(terraformManager, cloudConfigManager, stateStore, gcpEnvironmentValidator, gcpClientProvider.Client())
 	gcpLBs := commands.NewGCPLBs(terraformManager, logger)
 	gcpUpdateLBs := commands.NewGCPUpdateLBs(gcpCreateLBs)
 	gcpDeleteLBs := commands.NewGCPDeleteLBs(stateStore, gcpEnvironmentValidator, terraformManager, cloudConfigManager)
+=======
+>>>>>>> Stashed changes
 
 	up := commands.NewUp(awsUp, gcpUp, azureUp, envGetter, boshManager)
 
@@ -194,7 +206,11 @@ func main() {
 	commandSet["rotate"] = commands.NewRotate(stateValidator, sshKeyDeleter, up)
 	commandSet["destroy"] = commands.NewDestroy(logger, os.Stdin, boshManager, vpcStatusChecker, stackManager, infrastructureManager, certificateDeleter, stateStore, stateValidator, terraformManager, gcpNetworkInstancesChecker)
 	commandSet["down"] = commandSet["destroy"]
+<<<<<<< Updated upstream
 	commandSet["create-lbs"] = commands.NewCreateLBs(awsCreateLBs, gcpCreateLBs, logger, stateValidator, certificateValidator, boshManager)
+=======
+	commandSet["create-lbs"] = commands.NewCreateLBs(awsCreateLBs, azureCreateLBs, gcpCreateLBs, stateValidator, certificateValidator, boshManager)
+>>>>>>> Stashed changes
 	commandSet["update-lbs"] = commands.NewUpdateLBs(awsUpdateLBs, gcpUpdateLBs, certificateValidator, stateValidator, logger, boshManager)
 	commandSet["delete-lbs"] = commands.NewDeleteLBs(awsDeleteLBs, azureDeleteLBs, gcpDeleteLBs, logger, stateValidator, boshManager)
 	commandSet["lbs"] = commands.NewLBs(gcpLBs, awsLBs, stateValidator, logger)

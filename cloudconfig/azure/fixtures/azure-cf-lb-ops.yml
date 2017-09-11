@@ -1,0 +1,20 @@
+- type: replace
+  path: /vm_extensions/-
+  value:
+    name: cf-router-network-properties
+    cloud_properties:
+      load_balancer: some-web-lb-name
+
+- type: replace
+  path: /vm_extensions/-
+  value:
+    name: diego-ssh-proxy-network-properties
+    cloud_properties:
+      load_balancer: some-web-lb-name
+
+- type: replace
+  path: /vm_extensions/-
+  value:
+    name: cf-tcp-router-network-properties
+    cloud_properties:
+      load_balancer: some-tcp-lb-name

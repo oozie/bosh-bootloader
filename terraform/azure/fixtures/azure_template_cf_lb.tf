@@ -1,6 +1,4 @@
-package azure
-
-const VarsTemplate = `variable "env_id" {
+variable "env_id" {
 	type = "string"
 }
 
@@ -34,9 +32,8 @@ provider "azurerm" {
   client_id        = "${var.client_id}"
   client_secret    = "${var.client_secret}"
 }
-`
 
-const ResourceGroupTemplate = `resource "azurerm_resource_group" "bosh" {
+resource "azurerm_resource_group" "bosh" {
   name     = "${var.env_id}-bosh"
   location = "${var.location}"
 
@@ -55,9 +52,8 @@ resource "azurerm_public_ip" "bosh" {
     environment = "${var.env_id}"
   }
 }
-`
 
-const NetworkTemplate = `resource "azurerm_virtual_network" "bosh" {
+resource "azurerm_virtual_network" "bosh" {
   name                = "${var.env_id}-bosh-vn"
   address_space       = ["10.0.0.0/16"]
   location            = "${var.location}"
@@ -70,9 +66,8 @@ resource "azurerm_subnet" "bosh" {
   resource_group_name  = "${azurerm_resource_group.bosh.name}"
   virtual_network_name = "${azurerm_virtual_network.bosh.name}"
 }
-`
 
-const StorageTemplate = `resource "azurerm_storage_account" "bosh" {
+resource "azurerm_storage_account" "bosh" {
   name                = "${var.simple_env_id}"
   resource_group_name = "${azurerm_resource_group.bosh.name}"
 
@@ -97,9 +92,8 @@ resource "azurerm_storage_container" "stemcell" {
   storage_account_name  = "${azurerm_storage_account.bosh.name}"
   container_access_type = "blob"
 }
-`
 
-const NetworkSecurityGroupTemplate = `resource "azurerm_network_security_group" "bosh" {
+resource "azurerm_network_security_group" "bosh" {
   name                = "${var.env_id}-bosh"
   location            = "${var.location}"
   resource_group_name = "${azurerm_resource_group.bosh.name}"
@@ -202,9 +196,36 @@ resource "azurerm_network_security_rule" "cf-log" {
   resource_group_name         = "${azurerm_resource_group.bosh.name}"
   network_security_group_name = "${azurerm_network_security_group.cf.name}"
 }
-`
 
-const CFLBTemplate = `output "web_lb_name" {
+output "bosh_network_name" {
+    value = "${azurerm_virtual_network.bosh.name}"
+}
+
+output "bosh_subnet_name" {
+    value = "${azurerm_subnet.bosh.name}"
+}
+
+output "bosh_resource_group_name" {
+    value = "${azurerm_resource_group.bosh.name}"
+}
+
+output "bosh_storage_account_name" {
+    value = "${azurerm_storage_account.bosh.name}"
+}
+
+output "bosh_default_security_group" {
+    value = "${azurerm_network_security_group.bosh.name}"
+}
+
+output "external_ip" {
+    value = "${azurerm_public_ip.bosh.ip_address}"
+}
+
+output "director_address" {
+	value = "https://${azurerm_public_ip.bosh.ip_address}:25555"
+}
+
+output "web_lb_name" {
     value = "${azurerm_lb.web.name}"
 }
 
@@ -358,33 +379,3 @@ resource "azurerm_lb_rule" "tcp-rule" {
   backend_address_pool_id = "${azurerm_lb_backend_address_pool.tcp-backend-pool.id}"
   probe_id                = "${azurerm_lb_probe.tcp-probe.id}"
 }
-`
-
-const OutputTemplate = `output "bosh_network_name" {
-    value = "${azurerm_virtual_network.bosh.name}"
-}
-
-output "bosh_subnet_name" {
-    value = "${azurerm_subnet.bosh.name}"
-}
-
-output "bosh_resource_group_name" {
-    value = "${azurerm_resource_group.bosh.name}"
-}
-
-output "bosh_storage_account_name" {
-    value = "${azurerm_storage_account.bosh.name}"
-}
-
-output "bosh_default_security_group" {
-    value = "${azurerm_network_security_group.bosh.name}"
-}
-
-output "external_ip" {
-    value = "${azurerm_public_ip.bosh.ip_address}"
-}
-
-output "director_address" {
-	value = "https://${azurerm_public_ip.bosh.ip_address}:25555"
-}
-`

@@ -38,7 +38,7 @@ var _ = Describe("up", func() {
 		Eventually(session, 10*time.Minute).Should(gexec.Exit())
 	})
 
-	It("bbl's up a new bosh director", func() {
+	FIt("bbl's up a new bosh director", func() {
 		acceptance.SkipUnless("bbl-up")
 		session := bbl.Up("--name", bbl.PredefinedEnvID())
 		Eventually(session, 40*time.Minute).Should(gexec.Exit(0))

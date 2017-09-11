@@ -24,6 +24,15 @@ type op struct {
 	Value interface{}
 }
 
+type loadBalancer struct {
+	Name            string
+	CloudProperties loadBalancerCloudProperties `yaml:"cloud_properties"`
+}
+
+type loadBalancerCloudProperties struct {
+	LoadBalancer string `yaml:"load_balancer"`
+}
+
 type network struct {
 	Name    string
 	Subnets []networkSubnet
@@ -97,6 +106,40 @@ func (o OpsGenerator) Generate(state storage.State) (string, error) {
 				Type:    "manual",
 			},
 		},
+	}
+
+	if state.LB.Type == "cf" {
+		cloudConfigOps = append(cloudConfigOps,
+			op{
+				Type: "replace",
+				Path: "/vm_extensions/-",
+				Value: loadBalancer{
+					Name: "cf-router-network-properties",
+					CloudProperties: loadBalancerCloudProperties{
+						LoadBalancer: terraformOutputs["web_lb_name"].(string),
+					},
+				},
+			},
+			op{
+				Type: "replace",
+				Path: "/vm_extensions/-",
+				Value: loadBalancer{
+					Name: "diego-ssh-proxy-network-properties",
+					CloudProperties: loadBalancerCloudProperties{
+						LoadBalancer: terraformOutputs["web_lb_name"].(string),
+					},
+				},
+			},
+			op{
+				Type: "replace",
+				Path: "/vm_extensions/-",
+				Value: loadBalancer{
+					Name: "cf-tcp-router-network-properties",
+					CloudProperties: loadBalancerCloudProperties{
+						LoadBalancer: terraformOutputs["tcp_lb_name"].(string),
+					},
+				},
+			})
 	}
 
 	cloudConfigOpsYAML, err := marshal(cloudConfigOps)
