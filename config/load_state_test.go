@@ -584,10 +584,11 @@ var _ = Describe("LoadState", func() {
 						args = []string{
 							"bbl", "up", "--name", "some-env-id",
 							"--iaas", "azure",
-							"--azure-subscription-id", "subscription-id",
-							"--azure-tenant-id", "tenant-id",
 							"--azure-client-id", "client-id",
 							"--azure-client-secret", "client-secret",
+							"--azure-location", "location",
+							"--azure-subscription-id", "subscription-id",
+							"--azure-tenant-id", "tenant-id",
 						}
 					})
 
@@ -598,10 +599,11 @@ var _ = Describe("LoadState", func() {
 
 						state := appConfig.State
 						Expect(state.IAAS).To(Equal("azure"))
-						Expect(state.Azure.SubscriptionID).To(Equal("subscription-id"))
-						Expect(state.Azure.TenantID).To(Equal("tenant-id"))
 						Expect(state.Azure.ClientID).To(Equal("client-id"))
 						Expect(state.Azure.ClientSecret).To(Equal("client-secret"))
+						Expect(state.Azure.Location).To(Equal("location"))
+						Expect(state.Azure.SubscriptionID).To(Equal("subscription-id"))
+						Expect(state.Azure.TenantID).To(Equal("tenant-id"))
 					})
 
 					It("returns the command and its flags", func() {
@@ -621,10 +623,11 @@ var _ = Describe("LoadState", func() {
 						args = []string{"bbl", "up"}
 
 						os.Setenv("BBL_IAAS", "azure")
-						os.Setenv("BBL_AZURE_SUBSCRIPTION_ID", "azure-subscription-id")
-						os.Setenv("BBL_AZURE_TENANT_ID", "azure-tenant-id")
 						os.Setenv("BBL_AZURE_CLIENT_ID", "azure-client-id")
 						os.Setenv("BBL_AZURE_CLIENT_SECRET", "azure-client-secret")
+						os.Setenv("BBL_AZURE_LOCATION", "azure-location")
+						os.Setenv("BBL_AZURE_SUBSCRIPTION_ID", "azure-subscription-id")
+						os.Setenv("BBL_AZURE_TENANT_ID", "azure-tenant-id")
 					})
 
 					It("returns a state containing configuration", func() {
@@ -635,10 +638,11 @@ var _ = Describe("LoadState", func() {
 						state := appConfig.State
 
 						Expect(state.IAAS).To(Equal("azure"))
-						Expect(state.Azure.SubscriptionID).To(Equal("azure-subscription-id"))
-						Expect(state.Azure.TenantID).To(Equal("azure-tenant-id"))
 						Expect(state.Azure.ClientID).To(Equal("azure-client-id"))
 						Expect(state.Azure.ClientSecret).To(Equal("azure-client-secret"))
+						Expect(state.Azure.Location).To(Equal("azure-location"))
+						Expect(state.Azure.SubscriptionID).To(Equal("azure-subscription-id"))
+						Expect(state.Azure.TenantID).To(Equal("azure-tenant-id"))
 					})
 
 					It("returns the command", func() {
